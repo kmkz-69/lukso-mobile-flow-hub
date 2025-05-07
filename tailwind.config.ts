@@ -26,7 +26,7 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				lukso: {
-					primary: '#9b87f5',
+					primary: '#6C3BFF',
 					secondary: '#7E69AB',
 					dark: '#1A1F2C',
 					light: '#D6BCFA',

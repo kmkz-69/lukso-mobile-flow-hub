@@ -74,3 +74,20 @@
     @apply active:animate-squish active:scale-95 transition-transform;
   }
 }
+
+
+/* scroll bar */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-lukso-primary) var(--color-lukso-dark);
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--color-lukso-dark);
+  border-radius: 5px;
+}
