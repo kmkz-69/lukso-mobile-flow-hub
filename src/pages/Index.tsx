@@ -1,15 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, ShieldAlert } from "lucide-react";
 import ChatListItem from '@/components/ChatListItem';
 import UniversalProfileIcon from '@/components/UniversalProfileIcon';
 import ProjectBadge from '@/components/ProjectBadge';
 import NewConversation from '@/components/NewConversation';
 import { useChat } from '@/context/ChatContext';
 import { useProfile } from '@/context/ProfileContext';
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,7 +18,8 @@ const Index = () => {
   const [showNewConversation, setShowNewConversation] = useState(false);
   
   const { chats } = useChat();
-  const { profile, connectProfile } = useProfile();
+  const { profile, connectProfile, isLoading } = useProfile();
+  const { toast } = useToast();
   
   const filteredChats = chats.filter(chat => 
     chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -25,11 +27,31 @@ const Index = () => {
   );
   
   const handleChatClick = (id: string) => {
+    if (!profile.isConnected) {
+      toast({
+        title: "Connection Required",
+        description: "Please connect your LUKSO Universal Profile first",
+        variant: "destructive"
+      });
+      return;
+    }
     navigate(`/chat/${id}`);
   };
 
   const handleConnectUP = async () => {
     await connectProfile();
+  };
+
+  const handleNewConversation = () => {
+    if (!profile.isConnected) {
+      toast({
+        title: "Connection Required",
+        description: "Please connect your LUKSO Universal Profile first",
+        variant: "destructive"
+      });
+      return;
+    }
+    setShowNewConversation(true);
   };
 
   return (
@@ -52,10 +74,11 @@ const Index = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            className="bg-lukso-primary/10 text-lukso-primary border-none"
+            className={`${profile.isConnected ? 'bg-green-500/10 text-green-500' : 'bg-lukso-primary/10 text-lukso-primary'} border-none`}
             onClick={handleConnectUP}
+            disabled={isLoading}
           >
-            {profile.isConnected ? 'Connected' : 'Connect UP'}
+            {isLoading ? "Connecting..." : profile.isConnected ? 'Connected' : 'Connect UP'}
           </Button>
         </div>
       </header>
@@ -78,6 +101,13 @@ const Index = () => {
             {chats.length} total
           </Badge>
         </div>
+        
+        {!profile.isConnected && (
+          <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-center">
+            <ShieldAlert className="h-5 w-5 text-amber-500 mr-2" />
+            <span className="text-sm text-amber-600">Connect your LUKSO Universal Profile to start or join conversations</span>
+          </div>
+        )}
         
         <div className="space-y-2 mb-20">
           {filteredChats.map(chat => (
@@ -106,7 +136,8 @@ const Index = () => {
       <div className="thumb-zone p-4">
         <Button 
           className="w-full bg-lukso-primary hover:bg-lukso-secondary text-white"
-          onClick={() => setShowNewConversation(true)}
+          onClick={handleNewConversation}
+          disabled={isLoading}
         >
           New Conversation
         </Button>

@@ -1,23 +1,55 @@
 
-// This is a simplified representation of a smart contract ABI for milestone management
-// In a production app, this would be generated from the actual Solidity contract
+// This file represents the JavaScript interface to interact with our Solidity contract
 
 export const MilestoneContractABI = [
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_client",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_freelancer",
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "milestoneId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "arbiter",
+        "type": "address"
+      }
+    ],
+    "name": "DisputeCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "milestoneId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "releasedToFreelancer",
+        "type": "bool"
+      }
+    ],
+    "name": "DisputeResolved",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -55,7 +87,7 @@ export const MilestoneContractABI = [
       },
       {
         "indexed": false,
-        "internalType": "enum MilestoneStatus",
+        "internalType": "enum MilestoneContract.MilestoneStatus",
         "name": "status",
         "type": "uint8"
       }
@@ -64,46 +96,16 @@ export const MilestoneContractABI = [
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "inputs": [],
+    "name": "client",
+    "outputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "milestoneId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "arbiter",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "DisputeCreated",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_title",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "createMilestone",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -115,19 +117,6 @@ export const MilestoneContractABI = [
       }
     ],
     "name": "completeMilestone",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_milestoneId",
-        "type": "uint256"
-      }
-    ],
-    "name": "releaseFunds",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -153,6 +142,137 @@ export const MilestoneContractABI = [
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      }
+    ],
+    "name": "createMilestone",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "freelancer",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_milestoneId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMilestone",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum MilestoneContract.MilestoneStatus",
+        "name": "",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "milestoneCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "milestones",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum MilestoneContract.MilestoneStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasDispute",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "arbiter",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_milestoneId",
+        "type": "uint256"
+      }
+    ],
+    "name": "releaseFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_milestoneId",
         "type": "uint256"
@@ -167,63 +287,35 @@ export const MilestoneContractABI = [
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_milestoneId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getMilestone",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum MilestoneStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bool",
-            "name": "hasDispute",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct Milestone",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   }
 ];
 
 // This would be the address of the deployed contract
 export const CONTRACT_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
 
-// Helper function to simulate contract interaction (in a real app, this would use something like ethers.js)
+// Helper function to simulate contract interaction (in a real app, this would use something like ethers.js or web3.js)
 export const simulateContractCall = async (
   method: string, 
   params: any[] = [], 
+  value: number = 0,
   waitTime: number = 1500
 ): Promise<any> => {
   return new Promise((resolve) => {
-    console.log(`Simulating contract call: ${method}`, params);
+    console.log(`Simulating contract call: ${method}`, params, `Value: ${value} LYX`);
     setTimeout(() => {
-      resolve({ success: true, txHash: `0x${Math.random().toString(16).substring(2, 14)}` });
+      resolve({ 
+        success: true, 
+        txHash: `0x${Math.random().toString(16).substring(2, 14)}`,
+        value: value 
+      });
     }, waitTime);
   });
+};
+
+// Function to check if the browser has a LUKSO wallet extension
+export const checkLuksoWallet = (): boolean => {
+  // In a real implementation, we would check for a LUKSO wallet extension
+  // like MetaMask checks for window.ethereum
+  // For demo purposes, we'll simulate this check
+  return true;
 };

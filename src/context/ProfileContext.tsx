@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface Profile {
   address: string;
@@ -12,6 +13,8 @@ interface ProfileContextType {
   profile: Profile;
   connectProfile: () => Promise<void>;
   disconnectProfile: () => void;
+  checkConnection: () => boolean;
+  isLoading: boolean;
 }
 
 const defaultProfile = {
@@ -25,12 +28,18 @@ const ProfileContext = createContext<ProfileContextType>({
   profile: defaultProfile,
   connectProfile: async () => {},
   disconnectProfile: () => {},
+  checkConnection: () => false,
+  isLoading: false,
 });
 
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile>(defaultProfile);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Simulated LUKSO blockchain connection
   const connectProfile = async (): Promise<void> => {
+    setIsLoading(true);
+    
     // In a real implementation, this would connect to LUKSO UP
     // For demo purposes, we'll simulate a connection
     return new Promise((resolve) => {
@@ -39,8 +48,13 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
           ...profile,
           isConnected: true,
         });
+        toast({
+          title: "Success",
+          description: "Connected to LUKSO Universal Profile",
+        });
+        setIsLoading(false);
         resolve();
-      }, 1000);
+      }, 1500);
     });
   };
 
@@ -49,10 +63,19 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       ...profile,
       isConnected: false,
     });
+    toast({
+      title: "Disconnected",
+      description: "Disconnected from LUKSO Universal Profile",
+      variant: "destructive",
+    });
+  };
+
+  const checkConnection = () => {
+    return profile.isConnected;
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, connectProfile, disconnectProfile }}>
+    <ProfileContext.Provider value={{ profile, connectProfile, disconnectProfile, checkConnection, isLoading }}>
       {children}
     </ProfileContext.Provider>
   );

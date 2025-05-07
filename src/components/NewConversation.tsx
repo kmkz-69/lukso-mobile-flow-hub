@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Search, UserPlus } from "lucide-react";
+import { X, Search, UserPlus, ShieldAlert } from "lucide-react";
 import { useChat, Chat } from '@/context/ChatContext';
 import { useNavigate } from 'react-router-dom';
+import { useProfile } from '@/context/ProfileContext';
 
 interface NewConversationProps {
   isOpen: boolean;
@@ -19,6 +20,14 @@ const NewConversation: React.FC<NewConversationProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { profile } = useProfile();
+
+  // Check if user is connected at component mount
+  useEffect(() => {
+    if (isOpen && !profile.isConnected) {
+      onClose();
+    }
+  }, [isOpen, profile.isConnected, onClose]);
 
   // Mock user search results
   const mockUsers = [
@@ -58,6 +67,33 @@ const NewConversation: React.FC<NewConversationProps> = ({
   };
 
   if (!isOpen) return null;
+  
+  if (!profile.isConnected) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
+        <Card className={`w-full max-w-md rounded-t-2xl p-4 animate-slide-up`}>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold">Connection Required</h2>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="flex items-center p-4 bg-amber-500/10 border border-amber-500/20 rounded-md">
+            <ShieldAlert className="h-6 w-6 text-amber-500 mr-3" />
+            <p className="text-sm">Please connect your LUKSO Universal Profile first before starting a new conversation.</p>
+          </div>
+          
+          <Button 
+            className="w-full mt-4 bg-lukso-primary hover:bg-lukso-secondary text-white"
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
