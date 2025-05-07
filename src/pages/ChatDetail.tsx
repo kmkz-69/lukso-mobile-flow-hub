@@ -51,37 +51,37 @@ const mockMilestones = [
 const mockMessages = [
   {
     id: '1',
-    content: 'Hi there! I'm interested in discussing the project requirements.',
+    content: "Hi there! I'm interested in discussing the project requirements.",
     sender: 'alice',
     timestamp: '10:30 AM'
   },
   {
     id: '2',
-    content: 'Hi Alice, I'd love to talk about the project.',
+    content: "Hi Alice, I'd love to talk about the project.",
     sender: 'me',
     timestamp: '10:32 AM'
   },
   {
     id: '3',
-    content: 'Great! I've reviewed the specifications and I think I can deliver exactly what you need.',
+    content: "Great! I've reviewed the specifications and I think I can deliver exactly what you need.",
     sender: 'alice',
     timestamp: '10:35 AM'
   },
   {
     id: '4',
-    content: 'Sounds good. What's your timeline for the design mockups?',
+    content: "Sounds good. What's your timeline for the design mockups?",
     sender: 'me',
     timestamp: '10:38 AM'
   },
   {
     id: '5',
-    content: 'I can have the initial mockups ready by the end of this week. Then we can iterate based on your feedback.',
+    content: "I can have the initial mockups ready by the end of this week. Then we can iterate based on your feedback.",
     sender: 'alice',
     timestamp: '10:42 AM'
   },
   {
     id: '6',
-    content: 'Perfect. I've just completed the first milestone and uploaded the designs to the shared workspace.',
+    content: "Perfect. I've just completed the first milestone and uploaded the designs to the shared workspace.",
     sender: 'alice',
     timestamp: '10:45 AM'
   }
