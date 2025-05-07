@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,6 +25,14 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				lukso: {
+					primary: '#9b87f5',
+					secondary: '#7E69AB',
+					dark: '#1A1F2C',
+					light: '#D6BCFA',
+					accent: '#E5DEFF',
+					vivid: '#8B5CF6',
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -70,25 +79,48 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'slide-up': {
+					'0%': { transform: 'translateY(100%)' },
+					'100%': { transform: 'translateY(0)' }
+				},
+				'slide-down': {
+					'0%': { transform: 'translateY(0)' },
+					'100%': { transform: 'translateY(100%)' }
+				},
+				'bounce-subtle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-2px)' }
+				},
+				'token-transfer': {
+					'0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+					'50%': { transform: 'translateY(-20px) scale(0.9)', opacity: '0.8' },
+					'100%': { transform: 'translateY(-40px) scale(0.8)', opacity: '0' }
+				},
+				'squish': {
+					'0%, 100%': { transform: 'scale(1)' },
+					'50%': { transform: 'scale(0.95)' }
+				},
+				'glow-pulse': {
+					'0%, 100%': { boxShadow: '0 0 0 rgba(155, 135, 245, 0)' },
+					'50%': { boxShadow: '0 0 10px rgba(155, 135, 245, 0.5)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'slide-up': 'slide-up 0.3s ease-out',
+				'slide-down': 'slide-down 0.3s ease-out',
+				'bounce-subtle': 'bounce-subtle 2s infinite',
+				'token-transfer': 'token-transfer 1s forwards',
+				'squish': 'squish 0.2s ease-out',
+				'glow-pulse': 'glow-pulse 2s infinite'
 			}
 		}
 	},
