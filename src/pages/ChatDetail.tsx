@@ -7,6 +7,7 @@ import UniversalProfileIcon from '@/components/UniversalProfileIcon';
 import MilestoneScroller from '@/components/MilestoneScroller';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
+import AITypingIndicator from '@/components/AITypingIndicator';
 import AiSuggestionCard from '@/components/AiSuggestionCard';
 import DealBottomSheet from '@/components/DealBottomSheet';
 import MilestoneActionSheet from '@/components/MilestoneActionSheet';
@@ -14,6 +15,8 @@ import DisputeActionSheet from '@/components/DisputeActionSheet';
 import { useToast } from '@/hooks/use-toast';
 import { useChat } from '@/context/ChatContext';
 import { useDeal, Milestone } from '@/context/DealContext';
+import { useProfile } from '@/context/ProfileContext';
+import AIService from '@/services/AIService';
 
 // Mock users data for backward compatibility
 const mockUsers = {
@@ -35,11 +38,18 @@ const ChatDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { messages, sendMessage, markAsRead, setChatStatus } = useChat();
+  const { profile } = useProfile();
+  const { messages, sendMessage, markAsRead, setChatStatus, getAIResponse, isAITyping } = useChat();
   const { milestones, createMilestone } = useDeal();
   
   const [showDealSheet, setShowDealSheet] = useState(false);
-  const [showAiSuggestion, setShowAiSuggestion] = useState(true);
+  const [showAiSuggestion, setShowAiSuggestion] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState({
+    title: "",
+    description: "",
+    actionText: "",
+    type: "deal" as "deal" | "escrow" | "dispute"
+  });
   const [showMilestoneAction, setShowMilestoneAction] = useState(false);
   const [showDisputeAction, setShowDisputeAction] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
@@ -60,13 +70,80 @@ const ChatDetail = () => {
       markAsRead(chatId);
     }
   }, [chatId, markAsRead]);
+
+  // Generate AI suggestion when chat messages change
+  useEffect(() => {
+    const generateSuggestion = async () => {
+      if (!chatMessages.length) return;
+      
+      // Only generate suggestions occasionally
+      if (chatMessages.length > 0 && chatMessages.length % 3 === 0) {
+        const messageContents = chatMessages.map(msg => `${msg.sender === 'me' ? 'You' : 'User'}: ${msg.content}`);
+        const currentContext = `The conversation is about a project with ${chatUser.name}.`;
+        
+        const suggestion = await AIService.suggestAction(messageContents, currentContext);
+        
+        if (suggestion) {
+          // Parse the suggestion into parts
+          let title = "AI Suggestion";
+          let description = suggestion.suggestion || "";
+          let actionText = "Accept Suggestion";
+          
+          if (suggestion.type === 'deal') {
+            title = "Create a milestone?";
+            actionText = "Create Milestone";
+          } else if (suggestion.type === 'escrow') {
+            title = "Release payment?";
+            actionText = "Release Funds";
+          } else if (suggestion.type === 'dispute') {
+            title = "Resolve dispute?";
+            actionText = "Open Dispute Resolution";
+          }
+          
+          setAiSuggestion({
+            title,
+            description, 
+            actionText,
+            type: suggestion.type
+          });
+          
+          setShowAiSuggestion(true);
+        }
+      }
+    };
+    
+    generateSuggestion();
+  }, [chatMessages]);
   
   const handleSendMessage = (content: string) => {
+    if (!profile.isConnected) {
+      toast({
+        title: "Connection Required",
+        description: "Please connect your LUKSO Universal Profile to send messages",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     sendMessage(chatId, content);
+    
+    // Trigger AI response after a short delay
+    setTimeout(() => {
+      getAIResponse(chatId);
+    }, 1000);
   };
   
   const handleBookDeal = (amount: number, autoApprove: boolean) => {
     setShowDealSheet(false);
+    
+    if (!profile.isConnected) {
+      toast({
+        title: "Connection Required",
+        description: "Please connect your LUKSO Universal Profile to create milestones",
+        variant: "destructive"
+      });
+      return;
+    }
     
     // Create a new milestone
     createMilestone(chatId, "Custom Milestone", amount).then(() => {
@@ -84,6 +161,15 @@ const ChatDetail = () => {
   };
   
   const handleVoiceCommand = () => {
+    if (!profile.isConnected) {
+      toast({
+        title: "Connection Required",
+        description: "Please connect your LUKSO Universal Profile to use voice commands",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     toast({
       title: "Voice Recognition",
       description: "Listening for commands...",
@@ -101,7 +187,28 @@ const ChatDetail = () => {
   
   const handleAiSuggestion = () => {
     setShowAiSuggestion(false);
-    setShowDealSheet(true);
+    
+    if (aiSuggestion.type === 'deal') {
+      setShowDealSheet(true);
+    } else if (aiSuggestion.type === 'escrow') {
+      // For demo purposes, just show the milestone action sheet
+      if (chatMilestones.length > 0) {
+        setSelectedMilestone(chatMilestones[0]);
+        setShowMilestoneAction(true);
+      } else {
+        setShowDealSheet(true);
+      }
+    } else if (aiSuggestion.type === 'dispute') {
+      if (chatMilestones.length > 0) {
+        setSelectedMilestone(chatMilestones[0]);
+        setShowDisputeAction(true);
+      } else {
+        toast({
+          title: "No Active Milestones",
+          description: "Create a milestone first before opening a dispute",
+        });
+      }
+    }
   };
   
   const handleMilestoneClick = (milestone: Milestone) => {
@@ -161,12 +268,16 @@ const ChatDetail = () => {
           />
         ))}
         
+        {isAITyping && (
+          <AITypingIndicator sender={chatUser} />
+        )}
+        
         {showAiSuggestion && (
           <AiSuggestionCard
-            title="Book this milestone?"
-            description="I noticed you're discussing the Frontend Implementation milestone. Would you like to create an escrow contract for this work?"
-            actionText="Book Frontend Milestone (7.5 LYX)"
-            type="deal"
+            title={aiSuggestion.title}
+            description={aiSuggestion.description}
+            actionText={aiSuggestion.actionText}
+            type={aiSuggestion.type}
             onAction={handleAiSuggestion}
           />
         )}

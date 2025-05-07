@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic, PlusCircle, Send } from "lucide-react";
+import { Mic, PlusCircle, Send, Bot } from "lucide-react";
+import { useProfile } from '@/context/ProfileContext';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -12,6 +13,8 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSend, onVoice, onAction }) => {
   const [message, setMessage] = useState('');
+  const { profile } = useProfile();
+  const [aiMode, setAiMode] = useState(true);
 
   const handleSend = () => {
     if (message.trim()) {
@@ -33,8 +36,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend, onVoice, onAction }) => {
         <Button
           variant="outline"
           size="icon"
-          className="shrink-0"
+          className={`shrink-0 ${!profile.isConnected ? 'opacity-50' : ''}`}
           onClick={onAction}
+          disabled={!profile.isConnected}
         >
           <PlusCircle className="h-5 w-5 text-lukso-primary" />
         </Button>
@@ -46,24 +50,43 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend, onVoice, onAction }) => {
             placeholder="Type a message..."
             className="min-h-[44px] w-full resize-none py-3 pr-12"
             rows={1}
+            disabled={!profile.isConnected}
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute bottom-1 right-1"
-            onClick={onVoice}
-          >
-            <Mic className="h-5 w-5 text-lukso-primary" />
-          </Button>
+          <div className="absolute bottom-1 right-1 flex">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`${aiMode ? 'text-green-500' : ''}`}
+              onClick={() => setAiMode(!aiMode)}
+              disabled={!profile.isConnected}
+            >
+              <Bot className={`h-5 w-5 ${aiMode ? 'text-green-500' : 'text-lukso-primary'}`} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className=""
+              onClick={onVoice}
+              disabled={!profile.isConnected}
+            >
+              <Mic className="h-5 w-5 text-lukso-primary" />
+            </Button>
+          </div>
         </div>
         <Button
           className="bg-lukso-primary hover:bg-lukso-secondary text-white shrink-0"
           size="icon"
           onClick={handleSend}
+          disabled={!profile.isConnected || message.trim() === ''}
         >
           <Send className="h-5 w-5" />
         </Button>
       </div>
+      {!profile.isConnected && (
+        <div className="mt-2 text-xs text-center text-amber-600">
+          Please connect your LUKSO Universal Profile to send messages
+        </div>
+      )}
     </div>
   );
 };

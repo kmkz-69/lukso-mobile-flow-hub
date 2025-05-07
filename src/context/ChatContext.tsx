@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import AIService from "@/services/AIService";
 
 export interface Message {
   id: string;
@@ -25,6 +25,8 @@ interface ChatContextType {
   sendMessage: (chatId: string, content: string) => void;
   markAsRead: (chatId: string) => void;
   setChatStatus: (chatId: string, status: string) => void;
+  getAIResponse: (chatId: string) => Promise<void>;
+  isAITyping: boolean;
 }
 
 // Mock data
@@ -118,11 +120,14 @@ const ChatContext = createContext<ChatContextType>({
   sendMessage: () => {},
   markAsRead: () => {},
   setChatStatus: () => {},
+  getAIResponse: async () => {},
+  isAITyping: false
 });
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chats, setChats] = useState<Chat[]>(initialChats);
   const [messages, setMessages] = useState<Record<string, Message[]>>(initialMessages);
+  const [isAITyping, setIsAITyping] = useState<boolean>(false);
 
   const sendMessage = (chatId: string, content: string) => {
     const newMessage = {
@@ -155,6 +160,53 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const getAIResponse = async (chatId: string) => {
+    const chatMessages = messages[chatId] || [];
+    if (chatMessages.length === 0) return;
+    
+    setIsAITyping(true);
+    
+    // Extract the last 5 messages for context
+    const recentMessages = chatMessages.slice(-5).map(msg => ({
+      role: msg.sender === 'me' ? 'user' as const : 'assistant' as const,
+      content: msg.content
+    }));
+    
+    try {
+      const response = await AIService.generateResponse(recentMessages);
+      
+      // Add AI response as a message from the other person
+      const aiMessage = {
+        id: `msg-ai-${Date.now()}`,
+        content: response || "I'm not sure how to respond to that.",
+        sender: chatId, // Use the chatId as the sender for the AI response
+        timestamp: 'Just now'
+      };
+      
+      setMessages(prev => ({
+        ...prev,
+        [chatId]: [...(prev[chatId] || []), aiMessage]
+      }));
+      
+      // Update the last message in the chat list
+      setChats(prev => 
+        prev.map(chat => 
+          chat.id === chatId 
+            ? { 
+                ...chat, 
+                lastMessage: response || "I'm not sure how to respond to that.",
+                lastMessageTime: 'Just now'
+              } 
+            : chat
+        )
+      );
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+    } finally {
+      setIsAITyping(false);
+    }
+  };
+
   const markAsRead = (chatId: string) => {
     setChats(prev => 
       prev.map(chat => 
@@ -176,7 +228,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <ChatContext.Provider value={{ chats, messages, sendMessage, markAsRead, setChatStatus }}>
+    <ChatContext.Provider value={{ chats, messages, sendMessage, markAsRead, setChatStatus, getAIResponse, isAITyping }}>
       {children}
     </ChatContext.Provider>
   );
