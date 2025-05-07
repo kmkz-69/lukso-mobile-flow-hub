@@ -10,6 +10,7 @@ import ChatInput from '@/components/ChatInput';
 import AiSuggestionCard from '@/components/AiSuggestionCard';
 import DealBottomSheet from '@/components/DealBottomSheet';
 import MilestoneActionSheet from '@/components/MilestoneActionSheet';
+import DisputeActionSheet from '@/components/DisputeActionSheet';
 import { useToast } from '@/hooks/use-toast';
 import { useChat } from '@/context/ChatContext';
 import { useDeal, Milestone } from '@/context/DealContext';
@@ -40,6 +41,7 @@ const ChatDetail = () => {
   const [showDealSheet, setShowDealSheet] = useState(false);
   const [showAiSuggestion, setShowAiSuggestion] = useState(true);
   const [showMilestoneAction, setShowMilestoneAction] = useState(false);
+  const [showDisputeAction, setShowDisputeAction] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
   
   // Get the actual chat messages or default to empty array
@@ -105,6 +107,11 @@ const ChatDetail = () => {
   const handleMilestoneClick = (milestone: Milestone) => {
     setSelectedMilestone(milestone);
     setShowMilestoneAction(true);
+  };
+  
+  const handleDisputeClick = (milestone: Milestone) => {
+    setSelectedMilestone(milestone);
+    setShowDisputeAction(true);
   };
 
   return (
@@ -182,6 +189,14 @@ const ChatDetail = () => {
         milestone={selectedMilestone}
         chatId={chatId}
         onClose={() => setShowMilestoneAction(false)}
+        onDisputeClick={handleDisputeClick}
+      />
+      
+      <DisputeActionSheet
+        isOpen={showDisputeAction}
+        milestone={selectedMilestone}
+        chatId={chatId}
+        onClose={() => setShowDisputeAction(false)}
       />
     </div>
   );

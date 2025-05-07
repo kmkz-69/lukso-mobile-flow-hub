@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle, X, LockOpen, ArrowRight } from "lucide-react";
+import { CheckCircle, X, LockOpen, ArrowRight, AlertTriangle } from "lucide-react";
 import { useDeal, Milestone } from '@/context/DealContext';
 
 interface MilestoneActionSheetProps {
@@ -10,13 +10,15 @@ interface MilestoneActionSheetProps {
   milestone: Milestone | null;
   chatId: string;
   onClose: () => void;
+  onDisputeClick: (milestone: Milestone) => void;
 }
 
 const MilestoneActionSheet: React.FC<MilestoneActionSheetProps> = ({
   isOpen,
   milestone,
   chatId,
-  onClose
+  onClose,
+  onDisputeClick
 }) => {
   const { completeMilestone, releaseFunds } = useDeal();
   const [loading, setLoading] = useState(false);
@@ -35,6 +37,11 @@ const MilestoneActionSheet: React.FC<MilestoneActionSheetProps> = ({
     await releaseFunds(chatId, milestone.id);
     setLoading(false);
     onClose();
+  };
+  
+  const handleDisputeClick = () => {
+    onClose();
+    onDisputeClick(milestone);
   };
 
   return (
@@ -56,7 +63,9 @@ const MilestoneActionSheet: React.FC<MilestoneActionSheetProps> = ({
             <span>Status</span>
             <span className={`font-medium ${
               milestone.status === 'completed' ? 'text-green-500' : 
-              milestone.status === 'active' ? 'text-lukso-primary' : 'text-muted-foreground'
+              milestone.status === 'active' ? 'text-lukso-primary' : 
+              milestone.status === 'disputed' ? 'text-red-500' :
+              'text-muted-foreground'
             }`}>
               {milestone.status.charAt(0).toUpperCase() + milestone.status.slice(1)}
             </span>
@@ -65,25 +74,49 @@ const MilestoneActionSheet: React.FC<MilestoneActionSheetProps> = ({
 
         <div className="grid grid-cols-1 gap-3 mb-4">
           {milestone.status === 'active' && (
-            <Button 
-              onClick={handleCompleteMilestone}
-              disabled={loading}
-              className="bg-lukso-primary hover:bg-lukso-secondary text-white"
-            >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Mark as Completed
-            </Button>
+            <>
+              <Button 
+                onClick={handleCompleteMilestone}
+                disabled={loading}
+                className="bg-lukso-primary hover:bg-lukso-secondary text-white"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Mark as Completed
+              </Button>
+              
+              <Button 
+                onClick={handleDisputeClick}
+                disabled={loading}
+                variant="outline"
+                className="border-red-500 text-red-500 hover:bg-red-500/10"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Dispute Milestone
+              </Button>
+            </>
           )}
           
           {milestone.status === 'completed' && (
-            <Button 
-              onClick={handleReleaseFunds}
-              disabled={loading}
-              className="bg-green-500 hover:bg-green-600 text-white"
-            >
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Release Funds
-            </Button>
+            <>
+              <Button 
+                onClick={handleReleaseFunds}
+                disabled={loading}
+                className="bg-green-500 hover:bg-green-600 text-white"
+              >
+                <ArrowRight className="mr-2 h-4 w-4" />
+                Release Funds
+              </Button>
+              
+              <Button 
+                onClick={handleDisputeClick}
+                disabled={loading}
+                variant="outline"
+                className="border-red-500 text-red-500 hover:bg-red-500/10"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Dispute Milestone
+              </Button>
+            </>
           )}
           
           {milestone.status === 'locked' && (
@@ -93,6 +126,17 @@ const MilestoneActionSheet: React.FC<MilestoneActionSheetProps> = ({
             >
               <LockOpen className="mr-2 h-4 w-4" />
               Unlock (Previous milestone not completed)
+            </Button>
+          )}
+          
+          {milestone.status === 'disputed' && (
+            <Button 
+              onClick={handleDisputeClick}
+              disabled={loading}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              <AlertTriangle className="mr-2 h-4 w-4" />
+              View Dispute
             </Button>
           )}
         </div>

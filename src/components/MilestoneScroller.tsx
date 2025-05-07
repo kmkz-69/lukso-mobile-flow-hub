@@ -2,13 +2,13 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Check, Clock, Lock } from "lucide-react";
+import { Check, Clock, Lock, AlertTriangle } from "lucide-react";
 
 interface Milestone {
   id: string;
   title: string;
   amount: string;
-  status: 'completed' | 'active' | 'locked';
+  status: 'completed' | 'active' | 'locked' | 'disputed';
 }
 
 interface MilestoneScrollerProps {
@@ -29,7 +29,8 @@ const MilestoneScroller: React.FC<MilestoneScrollerProps> = ({
             className={`
               flex flex-col space-y-1 p-3 rounded-md w-44 cursor-pointer squish-button
               ${milestone.status === 'completed' ? 'bg-green-500/10 border border-green-500/20' : 
-                milestone.status === 'active' ? 'bg-lukso-primary/10 border border-lukso-primary/20' : 
+                milestone.status === 'active' ? 'bg-lukso-primary/10 border border-lukso-primary/20' :
+                milestone.status === 'disputed' ? 'bg-red-500/10 border border-red-500/20' :
                 'bg-gray-500/10 border border-gray-500/20'}
             `}
             onClick={() => onMilestoneClick?.(milestone)}
@@ -40,7 +41,8 @@ const MilestoneScroller: React.FC<MilestoneScrollerProps> = ({
                 className={`
                   text-xs px-2
                   ${milestone.status === 'completed' ? 'bg-green-500/20 text-green-500' : 
-                    milestone.status === 'active' ? 'bg-lukso-primary/20 text-lukso-primary' : 
+                    milestone.status === 'active' ? 'bg-lukso-primary/20 text-lukso-primary' :
+                    milestone.status === 'disputed' ? 'bg-red-500/20 text-red-500' :
                     'bg-gray-500/20 text-gray-400'}
                 `}
               >
@@ -48,6 +50,8 @@ const MilestoneScroller: React.FC<MilestoneScrollerProps> = ({
                   <><Check className="w-3 h-3 mr-1" /> Complete</>
                 ) : milestone.status === 'active' ? (
                   <><Clock className="w-3 h-3 mr-1" /> Active</>
+                ) : milestone.status === 'disputed' ? (
+                  <><AlertTriangle className="w-3 h-3 mr-1" /> Disputed</>
                 ) : (
                   <><Lock className="w-3 h-3 mr-1" /> Locked</>
                 )}

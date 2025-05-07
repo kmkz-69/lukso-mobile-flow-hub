@@ -1,12 +1,13 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { simulateContractCall } from "@/contracts/MilestoneContract";
 
 export interface Milestone {
   id: string;
   title: string;
   amount: string;
-  status: 'completed' | 'active' | 'locked';
+  status: 'completed' | 'active' | 'locked' | 'disputed';
 }
 
 interface DealContextType {
@@ -14,6 +15,8 @@ interface DealContextType {
   createMilestone: (chatId: string, title: string, amount: number) => Promise<void>;
   completeMilestone: (chatId: string, milestoneId: string) => Promise<void>;
   releaseFunds: (chatId: string, milestoneId: string) => Promise<void>;
+  createDispute: (chatId: string, milestoneId: string, reason: string) => Promise<void>;
+  resolveDispute: (chatId: string, milestoneId: string, releaseToFreelancer: boolean) => Promise<void>;
 }
 
 const DealContext = createContext<DealContextType>({
@@ -21,6 +24,8 @@ const DealContext = createContext<DealContextType>({
   createMilestone: async () => {},
   completeMilestone: async () => {},
   releaseFunds: async () => {},
+  createDispute: async () => {},
+  resolveDispute: async () => {},
 });
 
 export const DealProvider = ({ children }: { children: ReactNode }) => {
@@ -35,7 +40,8 @@ export const DealProvider = ({ children }: { children: ReactNode }) => {
 
   const createMilestone = async (chatId: string, title: string, amount: number): Promise<void> => {
     return new Promise((resolve) => {
-      setTimeout(() => {
+      // Simulate contract interaction
+      simulateContractCall('createMilestone', [title, amount]).then(() => {
         const newMilestone: Milestone = {
           id: `milestone-${Date.now()}`,
           title,
@@ -57,13 +63,13 @@ export const DealProvider = ({ children }: { children: ReactNode }) => {
         });
         
         resolve();
-      }, 1500);
+      });
     });
   };
 
   const completeMilestone = async (chatId: string, milestoneId: string): Promise<void> => {
     return new Promise((resolve) => {
-      setTimeout(() => {
+      simulateContractCall('completeMilestone', [milestoneId]).then(() => {
         setMilestones(prev => {
           const chatMilestones = prev[chatId] || [];
           const updatedMilestones = chatMilestones.map(m => 
@@ -82,26 +88,88 @@ export const DealProvider = ({ children }: { children: ReactNode }) => {
         });
         
         resolve();
-      }, 1000);
+      });
     });
   };
 
   const releaseFunds = async (chatId: string, milestoneId: string): Promise<void> => {
     return new Promise((resolve) => {
-      setTimeout(() => {
-        // In a real app, this would trigger a blockchain transaction
+      simulateContractCall('releaseFunds', [milestoneId]).then(() => {
         toast({
           title: "Funds Released",
           description: "The funds have been released to the freelancer.",
         });
         
         resolve();
-      }, 1500);
+      });
+    });
+  };
+
+  const createDispute = async (chatId: string, milestoneId: string, reason: string): Promise<void> => {
+    return new Promise((resolve) => {
+      // In a real implementation, this would designate an arbiter address
+      const arbiterAddress = "0x1111222233334444555566667777888899990000";
+      
+      simulateContractCall('createDispute', [milestoneId, arbiterAddress]).then(() => {
+        setMilestones(prev => {
+          const chatMilestones = prev[chatId] || [];
+          const updatedMilestones = chatMilestones.map(m => 
+            m.id === milestoneId ? { ...m, status: 'disputed' as const } : m
+          );
+          
+          return {
+            ...prev,
+            [chatId]: updatedMilestones
+          };
+        });
+        
+        toast({
+          title: "Dispute Created",
+          description: `Dispute created for milestone: ${reason}`,
+          variant: "destructive"
+        });
+        
+        resolve();
+      });
+    });
+  };
+
+  const resolveDispute = async (chatId: string, milestoneId: string, releaseToFreelancer: boolean): Promise<void> => {
+    return new Promise((resolve) => {
+      simulateContractCall('resolveDispute', [milestoneId, releaseToFreelancer]).then(() => {
+        setMilestones(prev => {
+          const chatMilestones = prev[chatId] || [];
+          const updatedMilestones = chatMilestones.map(m => 
+            m.id === milestoneId ? { ...m, status: releaseToFreelancer ? 'completed' as const : 'active' as const } : m
+          );
+          
+          return {
+            ...prev,
+            [chatId]: updatedMilestones
+          };
+        });
+        
+        toast({
+          title: "Dispute Resolved",
+          description: releaseToFreelancer 
+            ? "Funds have been released to the freelancer." 
+            : "Funds have been returned to the client.",
+        });
+        
+        resolve();
+      });
     });
   };
 
   return (
-    <DealContext.Provider value={{ milestones, createMilestone, completeMilestone, releaseFunds }}>
+    <DealContext.Provider value={{ 
+      milestones, 
+      createMilestone, 
+      completeMilestone, 
+      releaseFunds,
+      createDispute,
+      resolveDispute
+    }}>
       {children}
     </DealContext.Provider>
   );
