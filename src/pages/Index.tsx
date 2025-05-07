@@ -65,7 +65,7 @@ const Index = () => {
               image={profile.image}
             />
             <div className="flex flex-col">
-              <h2 className="text-sm font-medium">LUKSO Flow Hub</h2>
+              <h2 className="text-sm font-medium">TrustLink</h2>
               <div className="flex items-center">
                 <ProjectBadge id="LSP8-721" title="LUKSO Mobile Flow Hub" />
               </div>

@@ -23,7 +23,7 @@ class AIService {
         messages: [
           {
             role: "system",
-            content: "You are an AI assistant for LUKSO Flow Hub. Help with contract negotiations, milestone tracking, and project management. Be concise, helpful, and professional. When suggesting actions, focus on escrow contracts and milestone management."
+            content: "You are an AI assistant for TrustLink. Help with contract negotiations, milestone tracking, and project management. Be concise, helpful, and professional. When suggesting actions, focus on escrow contracts and milestone management."
           },
           ...messages
         ],
@@ -57,7 +57,7 @@ Suggest a helpful action for this project conversation. Focus on milestone manag
         messages: [
           {
             role: "system",
-            content: "You are a helpful AI assistant for LUKSO Flow Hub. Provide brief, actionable suggestions for contract negotiations and milestone management."
+            content: "You are a helpful AI assistant for TrustLink. Provide brief, actionable suggestions for contract negotiations and milestone management."
           },
           {
             role: "user",
