@@ -74,7 +74,7 @@ graph TD;
 
 1. Clone the repository:
    \`\`\`bash
-   git clone https://github.com/yourusername/trustlink.git
+   git clone https://github.com/kmkz-69/trustlink.git
    cd trustlink
    \`\`\`
 
@@ -83,13 +83,7 @@ graph TD;
    npm install
    \`\`\`
 
-3. Create a `.env.local` file with the following variables:
-   \`\`\`
-   NEXT_PUBLIC_DEFAULT_NETWORK=testnet
-   NEXT_PUBLIC_ESCROW_FACTORY_ADDRESS=your_deployed_contract_address
-   \`\`\`
-
-4. Start the development server:
+3. Start the development server:
    \`\`\`bash
    npm run dev
    \`\`\`
