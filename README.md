@@ -1,73 +1,181 @@
-# Welcome to your Lovable project
+# TrustLink - Decentralized Freelance Platform on LUKSO
 
-## Project info
+TrustLink is a decentralized freelance platform built on the LUKSO blockchain that connects freelancers and clients through smart contracts. It provides a secure, transparent, and efficient way to manage freelance projects with built-in escrow functionality, milestone-based payments, and dispute resolution.
 
-**URL**: https://lovable.dev/projects/861c5769-68e8-4d21-b0eb-49502071d693
+## Features
 
-## How can I edit this code?
+- **Universal Profile Integration**: Connect with LUKSO Universal Profiles for identity and authentication
+- **Smart Contract Escrow**: Secure funds in escrow contracts with milestone-based releases
+- **Milestone Verification**: Submit and verify project milestones with on-chain evidence
+- **Dispute Resolution**: Built-in dispute resolution mechanisms with multiple options
+- **Skill Verification**: Verify skills with NFT-based credentials
+- **File Attachments**: Attach files to projects and milestones
+- **Client Invitation System**: Invite clients to collaborate on projects
+- **Transaction History**: Track all blockchain transactions related to projects
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: Next.js, React, TypeScript, Tailwind CSS, shadcn/ui
+- **Blockchain**: LUKSO, Web3.js, ERC725.js
+- **Authentication**: Sign-In with Ethereum (SIWE)
+- **State Management**: Zustand with immer and persist middleware
+- **UI/UX**: Framer Motion for animations, Lucide for icons
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/861c5769-68e8-4d21-b0eb-49502071d693) and start prompting.
+## Getting Started
+```mermaid
+graph TD;
+    subgraph Client_Side
+        A[Next.js Frontend] -->|React, TypeScript| B[Components]
+        B --> C[Layouts]
+        B --> D[Projects]
+        B --> E[Milestones]
+        B --> F[Skills]
+        B --> G[Transactions]
+        B --> H[UP-Profile]
+        B --> I[UI shadcn/ui]
+        A -->|Zustand| J[State Management]
+        J -->|immer, persist| K[Stores]
+        A -->|Framer Motion| L[Animations]
+        A -->|Lucide| M[Icons]
+        A -->|Tailwind CSS| N[Styling]
+    end
 
-Changes made via Lovable will be committed automatically to this repo.
+    subgraph Blockchain_Integration
+        O[LUKSO Blockchain] -->|Web3.js, ERC725.js| P[Smart Contracts]
+        P --> Q[EscrowFactory]
+        P --> R[Escrow]
+        O -->|SIWE| S[Authentication]
+        O -->|Universal Profile| T[Identity]
+    end
 
-**Use your preferred IDE**
+    subgraph Interactions
+        A -->|Connects to| O
+        D -->|Creates| Q
+        E -->|Submits/Verifies| R
+        G -->|Tracks| O
+        F -->|NFT-based| T
+        R -->|Manages| U[Funds]
+        R -->|Handles| V[Disputes]
+        R -->|Records| W[Milestones]
+    end
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+    subgraph Environment
+        X[Development Mode] -->|Mock Contracts| A
+        Y[Production Mode] -->|Real Blockchain| O
+    end
 ```
+### Prerequisites
 
-**Edit a file directly in GitHub**
+- Node.js 16+
+- LUKSO Universal Profile (UP) Browser Extension
+- LUKSO testnet tokens for testing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Installation
 
-**Use GitHub Codespaces**
+1. Clone the repository:
+   \`\`\`bash
+   git clone https://github.com/yourusername/trustlink.git
+   cd trustlink
+   \`\`\`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. Install dependencies:
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-## What technologies are used for this project?
+3. Create a `.env.local` file with the following variables:
+   \`\`\`
+   NEXT_PUBLIC_DEFAULT_NETWORK=testnet
+   NEXT_PUBLIC_ESCROW_FACTORY_ADDRESS=your_deployed_contract_address
+   \`\`\`
 
-This project is built with:
+4. Start the development server:
+   \`\`\`bash
+   npm run dev
+   \`\`\`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## How can I deploy this project?
+## Smart Contracts
 
-Simply open [Lovable](https://lovable.dev/projects/861c5769-68e8-4d21-b0eb-49502071d693) and click on Share -> Publish.
+TrustLink uses two main smart contracts:
 
-## Can I connect a custom domain to my Lovable project?
+1. **EscrowFactory**: Creates new escrow contracts for projects
+2. **Escrow**: Manages funds, milestones, and dispute resolution for a specific project
 
-Yes, you can!
+### Contract Deployment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The contracts are deployed on the LUKSO testnet. To deploy your own contracts:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Install the LUKSO CLI:
+   \`\`\`bash
+   npm install -g @lukso/cli
+   \`\`\`
+
+2. Deploy the contracts:
+   \`\`\`bash
+   lukso deploy --network testnet
+   \`\`\`
+
+3. Update the contract addresses in `lib/lukso/lukso-config.ts`.
+
+## Real Blockchain Integration
+
+TrustLink now uses real blockchain integration instead of mock contracts. This means:
+
+1. All transactions are sent to the actual LUKSO blockchain
+2. Escrow contracts are created on-chain
+3. Milestone submissions and approvals are recorded on-chain
+4. Dispute resolution happens through the blockchain
+
+To use the real blockchain integration:
+
+1. Make sure you have LUKSO tokens in your Universal Profile
+2. Connect your Universal Profile through the app
+3. Create projects and interact with them normally
+
+The app will handle all blockchain interactions and provide status updates for transactions.
+
+## Development vs. Production
+
+- **Development Mode**: Uses mock contracts and simulated blockchain interactions
+- **Production Mode**: Uses real blockchain integration with actual LUKSO contracts
+
+To switch between modes, update the `USE_MOCK_CONTRACTS` flag in `stores/use-freelance-store.ts`.
+
+## Project Structure
+
+```md
+trustlink/
+├── app/                  # Next.js app router
+│   ├── layout.tsx        # Root layout
+│   ├── page.tsx          # Home page
+│   ├── new-project/      # Project creation
+│   ├── project/          # Project details
+│   └── profile/          # User profile
+├── components/           # React components
+│   ├── layouts/          # Layout components
+│   ├── projects/         # Project-related components
+│   ├── milestones/       # Milestone components
+│   ├── skills/           # Skill verification
+│   ├── transactions/     # Transaction components
+│   ├── up-profile/       # Universal Profile components
+│   └── ui/               # UI components (shadcn/ui)
+├── lib/                  # Utility functions
+│   └── lukso/            # LUKSO SDK and utilities
+├── stores/               # Zustand stores
+├── types/                # TypeScript types
+└── public/               # Static assets
+```
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- LUKSO for the blockchain infrastructure
+- shadcn/ui for the component library
